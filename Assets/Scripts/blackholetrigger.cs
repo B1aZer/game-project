@@ -28,7 +28,6 @@ public class blackholetrigger : MonoBehaviour
             }
 
             if (Input.GetMouseButton(1) && !baseCtrl.in_catcher_zone) {
-                Debug.Log("DEtr");
                 SphereCollider[] balls = FindObjectsOfType<SphereCollider>();                
                 foreach(SphereCollider ball in balls) {
                     baseCtrl.DetractFrom(baseCtrl.catcher, ball);
