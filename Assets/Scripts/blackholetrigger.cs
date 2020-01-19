@@ -18,22 +18,20 @@ public class blackholetrigger : MonoBehaviour
     {
          if (baseCtrl.in_vacuum_zone) {
              //TODO: disable in cather zone
-            if (Input.GetMouseButton(0) && !baseCtrl.in_catcher_zone) {
-                
-                Collider vacuum_catcher = FindObjectOfType<CapsuleCollider>();
+             // or catched?
+            if (Input.GetMouseButton(0) && !baseCtrl.in_catcher_zone) {               
                 SphereCollider[] balls = FindObjectsOfType<SphereCollider>();
-                Debug.Log("starting weeeeeeeeeee!!");
                 foreach(SphereCollider ball in balls) {
-                    AttractTo(vacuum_catcher, ball);
+                    AttractTo(baseCtrl.catcher, ball);
                 }
                 
             }
 
-            if (Input.GetMouseButton(1)) {
-                Collider vacuum_catcher = FindObjectOfType<CapsuleCollider>();
+            if (Input.GetMouseButton(1) && !baseCtrl.in_catcher_zone) {
+                Debug.Log("DEtr");
                 SphereCollider[] balls = FindObjectsOfType<SphereCollider>();                
                 foreach(SphereCollider ball in balls) {
-                    DetractFrom(vacuum_catcher, ball);
+                    baseCtrl.DetractFrom(baseCtrl.catcher, ball);
                 }
             }
          }
@@ -41,36 +39,25 @@ public class blackholetrigger : MonoBehaviour
     }
 
     private void AttractTo(Collider vacuum, Collider ball) {
-        Debug.Log("------");
+        //Debug.Log("------");
         Transform rbToAttract = vacuum.transform;
         //Debug.Log(rbToAttract.mass);
-        Debug.Log(rbToAttract.position);
+        //Debug.Log(rbToAttract.position);
         Rigidbody rbBall = ball.attachedRigidbody;
         //Debug.Log(rbBall.mass);
-        Debug.Log(rbBall.position);
+        //Debug.Log(rbBall.position);
         // this is a vector pointing from ball to vacuumer
         Vector3 direction = rbToAttract.position - rbBall.position;
-        Debug.Log(direction);
+        //Debug.Log(direction);
         float distance = direction.magnitude;
         //Debug.Log(distance);
         float forcemagintude = G * (vacuum_mass * rbBall.mass) / Mathf.Pow(distance, 2);
         //Debug.Log(forcemagintude);
         Vector3 force = direction.normalized * forcemagintude;
-        Debug.Log(force);
+        //Debug.Log(force);
         rbBall.AddForce(force);
         //Debug.Break();
-        Debug.Log("------");
-    }
-    
-    private void DetractFrom(Collider vacuum, Collider ball) {
-        //TODO: change
-        Transform rbToAttract = vacuum.transform;
-        Rigidbody rbBall = ball.attachedRigidbody;
-        Vector3 direction = -(rbToAttract.position - rbBall.position);
-        float distance = direction.magnitude;
-        float forcemagintude = G * (vacuum_mass * rbBall.mass) / Mathf.Pow(distance, 2);
-        Vector3 force = direction.normalized * forcemagintude;
-        rbBall.AddForce(force);
+        //Debug.Log("------");
     }
 
     private void OnTriggerEnter(Collider other)
