@@ -5,8 +5,6 @@ using UnityEngine;
 public class heavy_trajectory : MonoBehaviour
 {
  
-
- 
 	// Number of segments to calculate - more gives a smoother line
 	public int segmentCount = 100;
  
@@ -21,7 +19,7 @@ public class heavy_trajectory : MonoBehaviour
 	/// Simulate the path of a launched ball.
 	/// Slight errors are inherent in the numerical method used.
 	/// </summary>
-	public void simulatePath(Transform transform, float fireStrength)
+	public void simulatePath(Transform transform, Vector3 fireStrength)
 	{
 		Vector3[] segments = new Vector3[segmentCount];
  
@@ -30,7 +28,7 @@ public class heavy_trajectory : MonoBehaviour
  
 		// The initial velocity
 		
-		Vector3 segVelocity = transform.forward * fireStrength * Time.deltaTime;
+		Vector3 segVelocity = fireStrength * Time.deltaTime;
  
 		// reset our hit object
 		_hitObject = null;

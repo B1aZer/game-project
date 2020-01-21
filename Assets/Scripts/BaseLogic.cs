@@ -19,6 +19,8 @@ public class BaseLogic : MonoBehaviour
     {
         GameObject go = GameObject.Find ("Catcher");
         catcher = go.GetComponent <CapsuleCollider> ();
+        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     public void DetractFrom(Collider vacuum, Collider ball, int power = 1) {
