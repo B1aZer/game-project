@@ -74,10 +74,11 @@ public class Catcher : MonoBehaviour
             if (Input.GetMouseButton(1)) {
                  powerAcc1++;
                  powerText.text = powerAcc1.ToString();
-                if (powerAcc1 > 30) {
+                if (powerAcc1 > 30 && powerAcc1 % 60 == 0) {
                     //crossHair.enabled = true;
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    baseTraj.simulatePath(baseCtrl.locked_ball.transform, ray.direction * powerAcc1);
+                    //baseTraj.simulatePath(baseCtrl.locked_ball.attachedRigidbody, ray.direction * powerAcc1);
+                    Debug.DrawRay(Camera.main.transform.position, ray.direction, Color.green, 100, true);
                 }
             }
 
@@ -90,11 +91,12 @@ public class Catcher : MonoBehaviour
                         //baseCtrl.DetractFrom(baseCtrl.catcher, baseCtrl.catched_ball, powerAcc1);
                         
                         //Trying to give force manually
+                        // TODO: This ray comes fromom camer, wrong direction
                         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                         float force = powerAcc1;
+                        Debug.Log(ray.origin);
                         
-                        
-                        //baseCtrl.locked_ball.attachedRigidbody.AddForce(ray.direction * force, ForceMode.Impulse);
+                        baseCtrl.locked_ball.attachedRigidbody.AddForce(ray.direction * force, ForceMode.Impulse);
 
                         baseCtrl.locked_ball = null;
                         ball_released = true;

@@ -6,7 +6,7 @@ public class heavy_trajectory : MonoBehaviour
 {
  
 	// Number of segments to calculate - more gives a smoother line
-	public int segmentCount = 100;
+	public int segmentCount = 1;
  
 	// Length scale for each segment
 	public float segmentScale = 1;
@@ -19,7 +19,7 @@ public class heavy_trajectory : MonoBehaviour
 	/// Simulate the path of a launched ball.
 	/// Slight errors are inherent in the numerical method used.
 	/// </summary>
-	public void simulatePath(Transform transform, Vector3 fireStrength)
+	public void simulatePath(Rigidbody transform, Vector3 fireStrength)
 	{
 		Vector3[] segments = new Vector3[segmentCount];
  
@@ -28,7 +28,8 @@ public class heavy_trajectory : MonoBehaviour
  
 		// The initial velocity
 		
-		Vector3 segVelocity = fireStrength * Time.deltaTime;
+		//float v = (F/rigidbody.mass)*Time.fixedDeltaTime;
+		Vector3 segVelocity = (fireStrength/transform.mass) * Time.fixedDeltaTime;
  
 		// reset our hit object
 		_hitObject = null;
@@ -36,12 +37,12 @@ public class heavy_trajectory : MonoBehaviour
 		for (int i = 1; i < segmentCount; i++)
 		{
 			// Time it takes to traverse one segment of length segScale (careful if velocity is zero)
-			float segTime = (segVelocity.sqrMagnitude != 0) ? segmentScale / segVelocity.magnitude : 0;
+			//float segTime = (segVelocity.sqrMagnitude != 0) ? segmentScale / segVelocity.magnitude : 0;
  
 			// Add velocity from gravity for this segment's timestep
-			segVelocity = segVelocity + transform.forward * segTime;
+			//segVelocity = segVelocity + (fireStrength/transform.mass) + Physics.gravity * segTime;
 
-			segments[i] = segments[i - 1] + segVelocity * segTime;
+			//segments[i] = segments[i - 1] + segVelocity * segTime;
  
 			// Check to see if we're going to hit a physics object
 			/*
@@ -74,11 +75,15 @@ public class heavy_trajectory : MonoBehaviour
 				segments[i] = segments[i - 1] + segVelocity * segTime;
 			}
 			*/
+
+			segments[i] = segments[i - 1] + Vector3.forward;
 		}
  
 		// At the end, apply our simulations to the LineRenderer
  
 		// Set the colour of our path to the colour of the next ball
+
+		
 
 		Vector3 point1 = segments[0];
 		Vector3 point2;
@@ -87,7 +92,7 @@ public class heavy_trajectory : MonoBehaviour
 			
 			point2 = segments[i];
 			Debug.Log("drawing");
-			Debug.DrawLine(point1, point2, Color.red, 2.5f);
+			Debug.DrawLine(point1, point2, Color.green, 2.5f);
 			point1 = point2;
 		}
 			
