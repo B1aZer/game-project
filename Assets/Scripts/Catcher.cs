@@ -35,7 +35,7 @@ public class Catcher : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
 
         if (start_spin) {
@@ -74,12 +74,21 @@ public class Catcher : MonoBehaviour
             if (Input.GetMouseButton(1)) {
                  powerAcc1++;
                  powerText.text = powerAcc1.ToString();
-                if (powerAcc1 > 30 && powerAcc1 % 60 == 0) {
+                if (powerAcc1 > 30 && powerAcc1 % 10 == 0) {
                     //crossHair.enabled = true;
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    
                     //baseTraj.simulatePath(baseCtrl.locked_ball.attachedRigidbody, ray.direction * powerAcc1);
-                    Debug.DrawRay(Camera.main.transform.position, ray.direction, Color.green, 100, true);
+                    //Debug.DrawRay(Camera.main.transform.position, ray.direction, Color.green, 100, true);
+                    //Debug.DrawLine(baseCtrl.locked_ball.transform.position, ray.direction, Color.green, 2.5f);
+                    //Vector3 vel = baseCtrl.locked_ball.attachedRigidbody.velocity;
+                    //float drag = baseCtrl.locked_ball.attachedRigidbody.drag;
+                    
+                    
+                    baseCtrl.ChangeCams(1);
                 }
+                float force = powerAcc1 / 5;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                baseCtrl.drawProjectile(baseCtrl.locked_ball.attachedRigidbody, ray.direction * force, baseCtrl.locked_ball.attachedRigidbody.drag, 1f, Time.fixedDeltaTime);
             }
 
             if (Input.GetMouseButtonUp(1)) {
@@ -93,11 +102,12 @@ public class Catcher : MonoBehaviour
                         //Trying to give force manually
                         // TODO: This ray comes fromom camer, wrong direction
                         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        float force = powerAcc1;
-                        Debug.Log(ray.origin);
+                        float force = powerAcc1 / 5;
                         
-                        baseCtrl.locked_ball.attachedRigidbody.AddForce(ray.direction * force, ForceMode.Impulse);
-
+                        //baseCtrl.locked_ball.attachedRigidbody.AddForce(ray.direction * force, ForceMode.Impulse);
+                        baseCtrl.locked_ball.attachedRigidbody.velocity = ray.direction * force /  baseCtrl.locked_ball.attachedRigidbody.mass;
+                        
+                        baseCtrl.ChangeCams(3);
                         baseCtrl.locked_ball = null;
                         ball_released = true;
                         start_spin = false;    
