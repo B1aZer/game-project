@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class Catcher : MonoBehaviour
 {
+    public Slider powerBar;
+    public Text powerText; 
+
     private BaseLogic baseCtrl;
     private heavy_trajectory baseTraj;
 
@@ -17,7 +20,8 @@ public class Catcher : MonoBehaviour
     private int powerAcc1 = 0;
     //TODO: move to base?
     private Canvas crossHair;
-    public Text powerText; 
+    
+    private AudioSource glu_sound;
 
     void Awake()
     {
@@ -25,6 +29,8 @@ public class Catcher : MonoBehaviour
         baseCtrl = go.GetComponent<BaseLogic>();
         GameObject go1 = GameObject.Find ("TrajectoryRenderer");
         baseTraj = go1.GetComponent<heavy_trajectory>();
+        glu_sound = this.GetComponent<AudioSource>();
+        powerBar.gameObject.SetActive(false);
         
         //GameObject go2 = GameObject.Find ("Image");
         
@@ -72,19 +78,20 @@ public class Catcher : MonoBehaviour
             }
         
             if (Input.GetMouseButton(1)) {
-                 powerAcc1++;
-                 powerText.text = powerAcc1.ToString();
+                powerAcc1++;
+                // Max power is 100
+                powerAcc1 = Mathf.Min(powerAcc1, 100);
+                powerText.text = powerAcc1.ToString();
+                // power UI update 
+                powerBar.gameObject.SetActive(true); 
+                powerBar.value = powerAcc1 / 100f;
                 if (powerAcc1 > 30 && powerAcc1 % 10 == 0) {
-                    //crossHair.enabled = true;
-                    
-                    //baseTraj.simulatePath(baseCtrl.locked_ball.attachedRigidbody, ray.direction * powerAcc1);
-                    //Debug.DrawRay(Camera.main.transform.position, ray.direction, Color.green, 100, true);
-                    //Debug.DrawLine(baseCtrl.locked_ball.transform.position, ray.direction, Color.green, 2.5f);
-                    //Vector3 vel = baseCtrl.locked_ball.attachedRigidbody.velocity;
-                    //float drag = baseCtrl.locked_ball.attachedRigidbody.drag;
-                    
-                    
+                    //crossHair.enabled = true;                   
                     baseCtrl.ChangeCams(1);
+                    if (!glu_sound.isPlaying) {
+                        glu_sound.Play();
+                    }
+                          
                 }
                 float force = powerAcc1 / 5;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -100,7 +107,7 @@ public class Catcher : MonoBehaviour
                         //baseCtrl.DetractFrom(baseCtrl.catcher, baseCtrl.catched_ball, powerAcc1);
                         
                         //Trying to give force manually
-                        // TODO: This ray comes fromom camer, wrong direction
+                        // TODO: This ray comes fromom camera, wrong direction
                         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                         float force = powerAcc1 / 5;
                         
@@ -113,6 +120,8 @@ public class Catcher : MonoBehaviour
                         start_spin = false;    
                         powerAcc0 = 0;
                         powerAcc1 = 0;
+                        powerBar.gameObject.SetActive(false); 
+                        powerBar.value = 0; 
                         
                     }     
 
