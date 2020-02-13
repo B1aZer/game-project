@@ -4,11 +4,7 @@ using UnityEngine;
 
 public class BaseLogic : MonoBehaviour
 {
-    public bool in_catcher_zone = false;
     public bool in_vacuum_zone = false;
-    //public Collider 
-    public Collider catched_ball;
-    public Collider locked_ball;
     public Collider catcher;
     public GameObject FirstCam;
     public GameObject ThirdCam;
@@ -21,6 +17,7 @@ public class BaseLogic : MonoBehaviour
 
     void Awake()
     {
+        // rewrite with public
         GameObject go = GameObject.Find ("Catcher");
         catcher = go.GetComponent <CapsuleCollider> ();
         //Cursor.lockState = CursorLockMode.Locked;
@@ -47,6 +44,28 @@ public class BaseLogic : MonoBehaviour
                 ThirdCam.SetActive(false);  
                 active_camera = 1;        
             }
+    }
+
+    public void AttractTo(Collider vacuum, Collider ball) {
+        //Debug.Log("------");
+        Transform rbToAttract = vacuum.transform;
+        //Debug.Log(rbToAttract.mass);
+        //Debug.Log(rbToAttract.position);
+        Rigidbody rbBall = ball.attachedRigidbody;
+        //Debug.Log(rbBall.mass);
+        //Debug.Log(rbBall.position);
+        // this is a vector pointing from ball to vacuumer
+        Vector3 direction = rbToAttract.position - rbBall.position;
+        //Debug.Log(direction);
+        float distance = direction.magnitude;
+        //Debug.Log(distance);
+        float forcemagintude = G * (vacuum_mass * rbBall.mass) / Mathf.Pow(distance, 2);
+        //Debug.Log(forcemagintude);
+        Vector3 force = direction.normalized * forcemagintude;
+        //Debug.Log(force);
+        rbBall.AddForce(force);
+        //Debug.Break();
+        //Debug.Log("------");
     }
 
     public void DetractFrom(Collider vacuum, Collider ball, int power = 1) {

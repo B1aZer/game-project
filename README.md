@@ -10,3 +10,6 @@ TODO:
 So it's like throttle to holding buttons.
 5. left button should behave like right button. In a sense - it only activates when button released and power equal to holding amount (or standard if pressed once).
 6. Gravity or drag ? We should make trajectory unpredictable, either with small random amount or not showing full trajectory. We can show trajectory image on a gun for example, but not showing where ball will drop. Probably would need to make proto with each typ.e
+
+7. Move camera a little duting aiming but leave UI in place. Aim Constraint component?
+8. 
