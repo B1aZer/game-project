@@ -66,6 +66,8 @@ public class Catcher : MonoBehaviour
 
     // Update is called once per frame
     // We cant use fixed update when dealing with inputs
+
+    //TODO: we should first check input and then balls in the zones
     void Update()
     {
 
@@ -192,6 +194,7 @@ public class Catcher : MonoBehaviour
                     aim_panel.SetActive(false);
                     glu_sound.Stop();
                     baseCtrl.ChangeCams(3);
+
                     stopPowerAccAndHideUI(1);
                     
                 } else {
@@ -199,10 +202,32 @@ public class Catcher : MonoBehaviour
                 }
 
             }     
-
+        
+        // indicates that there are balls in vacuum zone
         } else if (baseCtrl.in_vacuum_zone) {
-            Debug.Log("Do we run it from anywhere?");
+            if (Input.GetMouseButton(0)) {
+
+                startPowerAccAndShowUI(0);
+
+            }
+
+            if (Input.GetMouseButtonUp(0)) {
+
+                foreach (Collider ball in baseCtrl.balls_in_vacuum_zone)
+                {
+                    float force = powerAcc0 / 5;
+                    Debug.Log(force);
+
+                    Vector3 direction = PlayerCtrl.transform.position - ball.transform.position;
+                    
+                    ball.attachedRigidbody.velocity = direction * force /  ball.attachedRigidbody.mass;
+                }
+
+                stopPowerAccAndHideUI(0);
+            }
+
         }
+        // indicates that there are no balls nearby
         else {
 
             if (Input.GetMouseButton(0)) {
@@ -210,15 +235,9 @@ public class Catcher : MonoBehaviour
                 startPowerAccAndShowUI(0);
 
             }
-            // TODO: could be triggered before up vent? debug
+
             if (Input.GetMouseButtonUp(0)) {
 
-                SphereCollider[] balls = FindObjectsOfType<SphereCollider>();
-                foreach (SphereCollider ball in balls)
-                {
-                    //TODO: there should be a power impulse applied
-                    //baseCtrl.AttractTo(baseCtrl.catcher, ball, powerAcc0);
-                }
                 stopPowerAccAndHideUI(0);
             }
         }

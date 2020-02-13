@@ -5,6 +5,7 @@ using UnityEngine;
 public class BaseLogic : MonoBehaviour
 {
     public bool in_vacuum_zone = false;
+    public List<Collider> balls_in_vacuum_zone = new List<Collider>();
     public CapsuleCollider catcher;
     public GameObject FirstCam;
     public GameObject ThirdCam;
@@ -14,6 +15,7 @@ public class BaseLogic : MonoBehaviour
     public int vacuum_mass = 1;
 
     private int active_camera = 3;
+
 
     void Awake()
     {

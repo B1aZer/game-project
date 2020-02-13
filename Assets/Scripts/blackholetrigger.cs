@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class blackholetrigger : MonoBehaviour
 {
+    public BaseLogic baseCtrl;
     public int vacuum_mass = 1;
     const float G = 7;
-    private BaseLogic baseCtrl;
     private Color oldColor;
     // Start is called before the first frame update
     void Awake()
     {
-        GameObject go = GameObject.Find ("Base");
-        baseCtrl = go.GetComponent <BaseLogic> ();
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -26,7 +25,11 @@ public class blackholetrigger : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-       
+        if (other.GetType() == typeof(SphereCollider)) {
+            if (!baseCtrl.balls_in_vacuum_zone.Contains(other)) {
+                baseCtrl.balls_in_vacuum_zone.Add(other);
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -35,6 +38,7 @@ public class blackholetrigger : MonoBehaviour
         if (other.GetType().IsAssignableFrom(typeof(UnityEngine.SphereCollider))) {
             baseCtrl.in_vacuum_zone = false;
             other.gameObject.GetComponent<Renderer>().material.color = oldColor;
+            baseCtrl.balls_in_vacuum_zone.Remove(other);
         }
        
     }
