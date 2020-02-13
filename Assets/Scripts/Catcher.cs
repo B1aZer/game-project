@@ -8,80 +8,92 @@ public class Catcher : MonoBehaviour
     public Slider powerBar;
     public Text powerText; 
     public GameObject aim_panel;
-
-    private BaseLogic baseCtrl;
-    private heavy_trajectory baseTraj;
-
-    private bool ball_released = false;
-    private bool start_spin = false;
-
-    //private bool sim_path = false;
-
-    private int powerAcc0 = 0;
-    private int powerAcc1 = 0;
-    //TODO: move to base?
-    private Canvas crossHair;
-    
+    public GameObject PlayerCtrl;
     public AudioSource glu_sound;
     public AudioSource chrg_sound;
+    public BaseLogic baseCtrl;
 
+    // Private
+    private heavy_trajectory baseTraj;
+    private bool start_spin = false;
+    private int powerAcc0 = 0;
+    private int powerAcc1 = 0;
     private List<Collider> balls_to_be_catched = new List<Collider>();
     private Collider locked_ball;
+
     void Awake()
     {
-        GameObject go = GameObject.Find ("Base");
-        baseCtrl = go.GetComponent<BaseLogic>();
-        GameObject go1 = GameObject.Find ("TrajectoryRenderer");
-        baseTraj = go1.GetComponent<heavy_trajectory>();
-        //glu_sound = this.GetComponent<AudioSource>();
         glu_sound.Stop();
-        //chrg_sound = this.GetComponent<AudioSource>();
         chrg_sound.Stop();
         powerBar.gameObject.SetActive(false);
         aim_panel.SetActive(false);
-        
-        //GameObject go2 = GameObject.Find ("Image");
-        
-        //Canvas crossHair = go2.GetComponent<Image>();
-
-        //crossHair.enabled = false;
-
     }
 
+    void startPowerAccAndShowUI(int button) {
+        if (button == 0) {
+            powerAcc0++;
+            // Max power is 100
+            powerAcc0 = Mathf.Min(powerAcc0, 100);
+            powerText.text = powerAcc0.ToString();
+            // power UI update 
+            powerBar.gameObject.SetActive(true); 
+            powerBar.value = powerAcc0 / 100f;
+        } else if (button == 1) {
+            powerAcc1++;
+            // Max power is 100
+            powerAcc1 = Mathf.Min(powerAcc1, 100);
+            powerText.text = powerAcc1.ToString();
+            // power UI update 
+            powerBar.gameObject.SetActive(true); 
+            powerBar.value = powerAcc1 / 100f;
+        }
+
+    }
+    void stopPowerAccAndHideUI(int button) {
+        if (button == 0) {
+            powerAcc0 = 0;
+            powerBar.gameObject.SetActive(false); 
+            powerBar.value = 0; 
+            powerText.text = "";
+        } else if (button == 1) {
+            powerAcc1 = 0;
+            powerBar.gameObject.SetActive(false); 
+            powerBar.value = 0; 
+            powerText.text = "";
+        }
+    }
+
+
     // Update is called once per frame
-    void FixedUpdate()
+    // We cant use fixed update when dealing with inputs
+    void Update()
     {
 
+        // TODO: refactor
         if (start_spin) {
             locked_ball.transform.Rotate( new Vector3(0, 1, 1) * powerAcc0 * Time.deltaTime); 
            
         }
 
         // testo
-        if (ball_released) {
+        //if (ball_released) {
             // Curve
             //baseCtrl.catched_ball.attachedRigidbody.AddRelativeForce (Vector3.left*1.088f, ForceMode.Impulse);         
-        }
+        //}
+
         // flag indicates that there are some balls in catcher zone
         if (balls_to_be_catched.Count > 0) {
            
             // trying to catch
             if (Input.GetMouseButton(0)) {
 
-                powerAcc0++;
-                // Max power is 100
-                powerAcc0 = Mathf.Min(powerAcc0, 100);
-                powerText.text = powerAcc0.ToString();
-                // power UI update 
-                powerBar.gameObject.SetActive(true); 
-                powerBar.value = powerAcc0 / 100f;
+                startPowerAccAndShowUI(0);
                                
                 // if ball catched
                 if (locked_ball) {
                     
-                    //start_spin = true;    
+                    // throttle
                     if (powerAcc0 > 30 && powerAcc0 % 10 == 0) {
-                        //crossHair.enabled = true;                   
                         baseCtrl.ChangeCams(1);
                         if (!chrg_sound.isPlaying) {
                             chrg_sound.Play();
@@ -101,6 +113,9 @@ public class Catcher : MonoBehaviour
                     catched_ball.transform.SetParent(baseCtrl.catcher.transform);
                     catched_ball.gameObject.transform.localPosition = new Vector3(0, -0.2f, 0);
                     locked_ball = catched_ball;
+
+                    Vector3 move_back = new Vector3(0, 0, -2f);
+                    PlayerCtrl.transform.position += move_back;                 
                 }
                 
             }
@@ -118,28 +133,23 @@ public class Catcher : MonoBehaviour
                     
                     //baseCtrl.locked_ball.attachedRigidbody.AddTorque(mp, ForceMode.Impulse);
                     start_spin = true;
-                    
-                    
+                      
+                } else {
+                    Debug.Log("what do we do here?");
                 }
 
                 // reset power and UI
+                aim_panel.SetActive(false);
                 chrg_sound.Stop();
                 baseCtrl.ChangeCams(3);
-                aim_panel.SetActive(false);
-                powerAcc0 = 0;
-                powerBar.gameObject.SetActive(false); 
-                powerBar.value = 0; 
+                stopPowerAccAndHideUI(0);
             }
         
             // trying to shoot the ball
             if (Input.GetMouseButton(1)) {
-                powerAcc1++;
-                // Max power is 100
-                powerAcc1 = Mathf.Min(powerAcc1, 100);
-                powerText.text = powerAcc1.ToString();
-                // power UI update 
-                powerBar.gameObject.SetActive(true); 
-                powerBar.value = powerAcc1 / 100f;
+
+                startPowerAccAndShowUI(1);
+
                 // throttle every 10 * 0.02 s
                 if (powerAcc1 > 30 && powerAcc1 % 10 == 0) {
                     //crossHair.enabled = true;                   
@@ -150,6 +160,7 @@ public class Catcher : MonoBehaviour
                     aim_panel.SetActive(true);
                           
                 }
+
                 float force = powerAcc1 / 5;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 // debug ray
@@ -175,37 +186,42 @@ public class Catcher : MonoBehaviour
                     //baseCtrl.locked_ball.attachedRigidbody.AddForce(ray.direction * force, ForceMode.Impulse);
                     locked_ball.attachedRigidbody.velocity = ray.direction * force /  locked_ball.attachedRigidbody.mass;
                     
-                    baseCtrl.ChangeCams(3);
                     locked_ball = null;
-                    ball_released = true;
                     start_spin = false;    
-                    powerAcc0 = 0;
-                    powerAcc1 = 0;
-                    powerBar.gameObject.SetActive(false); 
-                    powerBar.value = 0; 
+
                     aim_panel.SetActive(false);
+                    glu_sound.Stop();
+                    baseCtrl.ChangeCams(3);
+                    stopPowerAccAndHideUI(1);
                     
-                }     
+                } else {
+                    Debug.Log("Probably should not trigger");
+                }
 
             }     
 
         } else if (baseCtrl.in_vacuum_zone) {
+            Debug.Log("Do we run it from anywhere?");
+        }
+        else {
 
-            if (Input.GetMouseButton(0)) {               
+            if (Input.GetMouseButton(0)) {
+
+                startPowerAccAndShowUI(0);
+
+            }
+            // TODO: could be triggered before up vent? debug
+            if (Input.GetMouseButtonUp(0)) {
+
                 SphereCollider[] balls = FindObjectsOfType<SphereCollider>();
-                foreach(SphereCollider ball in balls) {
-                    baseCtrl.AttractTo(baseCtrl.catcher, ball);
+                foreach (SphereCollider ball in balls)
+                {
+                    //TODO: there should be a power impulse applied
+                    //baseCtrl.AttractTo(baseCtrl.catcher, ball, powerAcc0);
                 }
-                
+                stopPowerAccAndHideUI(0);
             }
-
-            if (Input.GetMouseButton(1)) {
-                SphereCollider[] balls = FindObjectsOfType<SphereCollider>();                
-                foreach(SphereCollider ball in balls) {
-                    baseCtrl.DetractFrom(baseCtrl.catcher, ball);
-                }
-            }
-         }
+        }
     }
     
     private void OnTriggerEnter(Collider other)
@@ -217,7 +233,9 @@ public class Catcher : MonoBehaviour
     {
         // if we enteracting with ball
         if (other.GetType() == typeof(SphereCollider)) {
-            balls_to_be_catched.Add(other);
+            if (!balls_to_be_catched.Contains(other)) {
+                balls_to_be_catched.Add(other);
+            }
         }
     }
 

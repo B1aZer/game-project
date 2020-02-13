@@ -6680,7 +6680,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 429776647}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.025353072, y: 7.673168e-17, z: -12.69}
+  m_LocalPosition: {x: 0.025353072, y: 7.673168e-17, z: -12.41}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1925793772}
@@ -7932,6 +7932,7 @@ MonoBehaviour:
   powerBar: {fileID: 1013276995}
   powerText: {fileID: 1680005732}
   aim_panel: {fileID: 54846192}
+  PlayerCtrl: {fileID: 429776647}
   glu_sound: {fileID: 755093955}
   chrg_sound: {fileID: 990015557}
 --- !u!136 &834017650
@@ -12687,7 +12688,7 @@ PrefabInstance:
     - target: {fileID: 727538927206889837, guid: 73401aa44d42a7d448910ea414b69b13,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -12.69
+      value: -12.41
       objectReference: {fileID: 0}
     - target: {fileID: 727538927206889837, guid: 73401aa44d42a7d448910ea414b69b13,
         type: 3}

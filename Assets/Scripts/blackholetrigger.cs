@@ -7,6 +7,7 @@ public class blackholetrigger : MonoBehaviour
     public int vacuum_mass = 1;
     const float G = 7;
     private BaseLogic baseCtrl;
+    private Color oldColor;
     // Start is called before the first frame update
     void Awake()
     {
@@ -19,6 +20,8 @@ public class blackholetrigger : MonoBehaviour
         // if we enteracting with ball
         if (other.GetType() == typeof(SphereCollider)) {
             baseCtrl.in_vacuum_zone = true;
+            oldColor = other.gameObject.GetComponent<Renderer>().material.color;
+            other.gameObject.GetComponent<Renderer>().material.color = Color.blue;
         }
     }
     private void OnTriggerStay(Collider other)
@@ -31,6 +34,7 @@ public class blackholetrigger : MonoBehaviour
          // if we enteracting with ball
         if (other.GetType().IsAssignableFrom(typeof(UnityEngine.SphereCollider))) {
             baseCtrl.in_vacuum_zone = false;
+            other.gameObject.GetComponent<Renderer>().material.color = oldColor;
         }
        
     }

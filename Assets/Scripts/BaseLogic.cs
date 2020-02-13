@@ -5,7 +5,7 @@ using UnityEngine;
 public class BaseLogic : MonoBehaviour
 {
     public bool in_vacuum_zone = false;
-    public Collider catcher;
+    public CapsuleCollider catcher;
     public GameObject FirstCam;
     public GameObject ThirdCam;
 
@@ -17,11 +17,7 @@ public class BaseLogic : MonoBehaviour
 
     void Awake()
     {
-        // rewrite with public
-        GameObject go = GameObject.Find ("Catcher");
-        catcher = go.GetComponent <CapsuleCollider> ();
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+
     }
 
     public void ChangeCams(int cam_num) {
@@ -46,7 +42,7 @@ public class BaseLogic : MonoBehaviour
             }
     }
 
-    public void AttractTo(Collider vacuum, Collider ball) {
+    public void AttractTo(Collider vacuum, Collider ball, int power = 1) {
         //Debug.Log("------");
         Transform rbToAttract = vacuum.transform;
         //Debug.Log(rbToAttract.mass);
@@ -59,7 +55,7 @@ public class BaseLogic : MonoBehaviour
         //Debug.Log(direction);
         float distance = direction.magnitude;
         //Debug.Log(distance);
-        float forcemagintude = G * (vacuum_mass * rbBall.mass) / Mathf.Pow(distance, 2);
+        float forcemagintude = power/10 * G * (vacuum_mass * rbBall.mass) / Mathf.Pow(distance, 2);
         //Debug.Log(forcemagintude);
         Vector3 force = direction.normalized * forcemagintude;
         //Debug.Log(force);
