@@ -12,6 +12,7 @@ public class Catcher : MonoBehaviour
     public AudioSource glu_sound;
     public AudioSource chrg_sound;
     public BaseLogic baseCtrl;
+    public BasePhysics basePhysics;
 
     // Private
     private heavy_trajectory baseTraj;
@@ -63,25 +64,12 @@ public class Catcher : MonoBehaviour
         }
     }
 
-
     // Update is called once per frame
     // We cant use fixed update when dealing with inputs
 
     //TODO: we should first check input and then balls in the zones
     void Update()
     {
-
-        // TODO: refactor
-        if (start_spin) {
-            locked_ball.transform.Rotate( new Vector3(0, 1, 1) * powerAcc0 * Time.deltaTime); 
-           
-        }
-
-        // testo
-        //if (ball_released) {
-            // Curve
-            //baseCtrl.catched_ball.attachedRigidbody.AddRelativeForce (Vector3.left*1.088f, ForceMode.Impulse);         
-        //}
 
         // flag indicates that there are some balls in catcher zone
         if (balls_to_be_catched.Count > 0) {
@@ -112,7 +100,7 @@ public class Catcher : MonoBehaviour
                     catched_ball.attachedRigidbody.velocity = Vector3.zero;
                     // Probably dont' need, check
                     catched_ball.attachedRigidbody.angularVelocity = Vector3.zero;
-                    catched_ball.transform.SetParent(baseCtrl.catcher.transform);
+                    catched_ball.transform.SetParent(this.transform);
                     catched_ball.gameObject.transform.localPosition = new Vector3(0, -0.2f, 0);
                     locked_ball = catched_ball;
 
@@ -133,8 +121,7 @@ public class Catcher : MonoBehaviour
                     mp.x -= Screen.width/2;
                     mp.y -= Screen.height/2;
                     
-                    //baseCtrl.locked_ball.attachedRigidbody.AddTorque(mp, ForceMode.Impulse);
-                    start_spin = true;
+                    BasePhysics.startSpinForCoordinates(mp);
                       
                 } else {
                     Debug.Log("what do we do here?");
@@ -154,7 +141,6 @@ public class Catcher : MonoBehaviour
 
                 // throttle every 10 * 0.02 s
                 if (powerAcc1 > 30 && powerAcc1 % 10 == 0) {
-                    //crossHair.enabled = true;                   
                     baseCtrl.ChangeCams(1);
                     if (!glu_sound.isPlaying) {
                         glu_sound.Play();
@@ -177,16 +163,15 @@ public class Catcher : MonoBehaviour
                     locked_ball.transform.SetParent(null);
                     locked_ball.GetComponent<SphereCollider>().isTrigger = false;
                     locked_ball.attachedRigidbody.isKinematic = false;
-                    //baseCtrl.DetractFrom(baseCtrl.catcher, baseCtrl.catched_ball, powerAcc1);
                     
-                    //Trying to give force manually
                     // TODO: This ray comes fromom camera, wrong direction
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     float force = powerAcc1 / 5;
                     
-                    // shoot the ball with the force
+                    //Trying to give force manually
                     //baseCtrl.locked_ball.attachedRigidbody.AddForce(ray.direction * force, ForceMode.Impulse);
-                    locked_ball.attachedRigidbody.velocity = ray.direction * force /  locked_ball.attachedRigidbody.mass;
+                    //locked_ball.attachedRigidbody.velocity = ray.direction * force /  locked_ball.attachedRigidbody.mass;
+                    BasePhysics.addVelocity(locked_ball.attachedRigidbody, ray.direction * force /  locked_ball.attachedRigidbody.mass);
                     
                     locked_ball = null;
                     start_spin = false;    
@@ -206,21 +191,15 @@ public class Catcher : MonoBehaviour
         // indicates that there are balls in vacuum zone
         } else if (baseCtrl.in_vacuum_zone) {
             if (Input.GetMouseButton(0)) {
-
                 startPowerAccAndShowUI(0);
-
             }
 
             if (Input.GetMouseButtonUp(0)) {
 
-                foreach (Collider ball in baseCtrl.balls_in_vacuum_zone)
-                {
+                foreach (Collider ball in baseCtrl.balls_in_vacuum_zone) {
                     float force = powerAcc0 / 5;
-                    Debug.Log(force);
-
-                    Vector3 direction = PlayerCtrl.transform.position - ball.transform.position;
-                    
-                    ball.attachedRigidbody.velocity = direction * force /  ball.attachedRigidbody.mass;
+                    Vector3 direction = this.transform.position - ball.transform.position;
+                    BasePhysics.addVelocity(ball.attachedRigidbody, direction * force /  ball.attachedRigidbody.mass);
                 }
 
                 stopPowerAccAndHideUI(0);
@@ -231,25 +210,20 @@ public class Catcher : MonoBehaviour
         else {
 
             if (Input.GetMouseButton(0)) {
-
                 startPowerAccAndShowUI(0);
-
             }
 
             if (Input.GetMouseButtonUp(0)) {
-
                 stopPowerAccAndHideUI(0);
             }
         }
     }
     
-    private void OnTriggerEnter(Collider other)
-    {
+    private void OnTriggerEnter(Collider other) {
        
     }
     
-    private void OnTriggerStay(Collider other)
-    {
+    private void OnTriggerStay(Collider other) {
         // if we enteracting with ball
         if (other.GetType() == typeof(SphereCollider)) {
             if (!balls_to_be_catched.Contains(other)) {
@@ -258,13 +232,11 @@ public class Catcher : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit(Collider other)
-    {
+    private void OnTriggerExit(Collider other) {
          // if we enteracting with ball
         if (other.GetType().IsAssignableFrom(typeof(UnityEngine.SphereCollider))) {
             balls_to_be_catched.Remove(other);
         }
-       
     }
 
 }
